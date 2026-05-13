@@ -1,8 +1,0 @@
-fastapi
-uvicorn
-pydantic
-keyboard
-pyperclip
-openai
-keyring
-keyrings.alt

@@ -1,14 +1,3 @@
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-env/
-venv/
+/target
+config.ini
 .env
-.venv
-*.db
-*.sqlite3
-*.log
-*.pid
-rust_hotkeys/target/

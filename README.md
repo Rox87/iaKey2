@@ -1,29 +1,71 @@
-# AI Hotkeys
+# jKey (iaKeyLite)
 
-Este projeto permite configurar teclas de atalho globais que "recortam" o texto selecionado, enviam para uma IA compatível com a API da OpenAI com um prefixo configurável, e colam a resposta da IA de volta no local original.
+<p align="center">
+  <img src="assets/logo.png" alt="jKey Logo" width="200"/>
+</p>
 
-## Requisitos
-Você precisará do Python 3.8+ instalado no seu computador.
-O programa requer permissões do sistema operativo para intercetar as teclas de atalho (no Windows ele já consegue fazer isso, no macOS/Linux pode precisar rodar com permissões de root/administrador dependendo de suas configurações de segurança e da biblioteca `keyboard`).
+Uma ferramenta poderosa e leve escrita em Rust para integrar Inteligência Artificial (Gemini e DeepSeek) diretamente no seu fluxo de trabalho através de atalhos de teclado globais.
 
-## Instalação
+## 🚀 Funcionalidades
 
+- **Melhoria Automática de Texto (F3)**: Selecione um texto, pressione F3 e receba uma versão aprimorada colada automaticamente.
+- **Consulta Geral (F8)**: Transforme qualquer seleção em uma pergunta para a IA.
+- **Geração de Código Python (F9)**: Gere trechos de código Python baseados no contexto selecionado.
+- **Geração de HTML/Web (F10)**: Crie estruturas HTML rapidamente com IA.
+- **Suporte Multi-Provedor**: Utilize Google Gemini e DeepSeek simultaneamente.
+- **Instância Única Inteligente**: Se você tentar abrir o app novamente, a versão anterior é fechada e reiniciada automaticamente.
+- **Modo Silencioso**: Funciona na bandeja do sistema (System Tray) consumindo o mínimo de recursos.
+
+## 🛠️ Configuração
+
+Para utilizar o jKey, você precisa de chaves de API dos provedores suportados.
+
+1. Clone o repositório:
+   ```bash
+   git clone <repository-url>
+   cd iaKeyLite
+   ```
+
+2. Crie um arquivo `.env` na raiz do projeto seguindo o modelo:
+   ```env
+   GEMINI_API_KEY=sua_chave_gemini_aqui
+   DEEPSEEK_API_KEY=sua_chave_deepseek_aqui
+   
+   # Configurações de Modelos (Opcional)
+   MODELO_GERAL=gemini-1.5-flash
+   MODELO_CODIGO=deepseek-coder
+   ```
+
+## ⌨️ Atalhos de Teclado
+
+| Tecla | Ação |
+| :--- | :--- |
+| **F3** | Melhora o texto selecionado (re-escrita inteligente) |
+| **F8** | Envia o texto selecionado como uma pergunta geral |
+| **F9** | Gera código Python baseado no texto |
+| **F10** | Gera código HTML/Frontend baseado no texto |
+
+## 📦 Como Rodar
+
+### Requisitos
+- [Rust Toolchain](https://rustup.rs/) (Windows recomendado)
+
+### Execução em Desenvolvimento
 ```bash
-pip install -r requirements.txt
+cargo run
 ```
 
-## Como usar
-
-Execute o script principal:
+### Compilação de Produção (Otimizada)
 ```bash
-python run.py
+cargo build --release
 ```
+O executável será gerado em `target/release/jKey.exe`.
 
-O programa iniciará um servidor em segundo plano.
-Abra seu navegador no endereço: `http://localhost:8000`
+## 🎨 Design e Estética
+O jKey foi projetado para ser "invisível" até que você precise dele. Com um ícone moderno na bandeja do sistema e respostas rápidas, ele se integra perfeitamente ao Windows.
 
-Na interface de configuração:
-1. **Adicione Modelos:** Cadastre os modelos que deseja usar (ex: OpenAI GPT-4, Llama 3 local via LMStudio/Ollama, etc). Chaves de API serão salvas de forma segura no cofre do seu SO utilizando a biblioteca `keyring`.
-2. **Adicione Atalhos:** Configure os atalhos. Ao invés de digitar `ctrl+c`, basta clicar no campo de atalho e apertar as teclas. Defina o Prefixo (ex: "Traduza o texto abaixo para Português:") e vincule a um modelo cadastrado.
+## 📄 Licença
+Este projeto é distribuído sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
 
-**Uso Prático:** Selecione qualquer texto em qualquer janela, e aperte a tecla de atalho. O texto será recortado, o aviso "Processando..." aparecerá, e, assim que a IA responder, o "Processando..." será substituído pela resposta gerada!
+---
+<p align="center">Desenvolvido com ❤️ usando Rust</p>
