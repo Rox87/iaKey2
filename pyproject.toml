@@ -1,0 +1,32 @@
+[project]
+name = "iakey"
+version = "0.1.0"
+description = "AI Hotkeys App"
+authors = [
+    {name = "Rodrigo"}
+]
+readme = "README.md"
+requires-python = "^3.10"
+dependencies = [
+    "fastapi (>=0.136.1,<0.137.0)",
+    "uvicorn (>=0.46.0,<0.47.0)",
+    "pydantic (>=2.13.4,<3.0.0)",
+    "keyboard (>=0.13.5,<0.14.0)",
+    "pyperclip (>=1.11.0,<2.0.0)",
+    "openai (>=2.36.0,<3.0.0)",
+    "keyring (>=25.7.0,<26.0.0)",
+    "keyrings-alt (>=5.0.2,<6.0.0)"
+]
+
+
+[tool.poetry]
+package-mode = false
+
+[tool.poetry.scripts]
+
+start = "run:main"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
