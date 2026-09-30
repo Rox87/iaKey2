@@ -44,8 +44,8 @@ def hotkey_callback(hotkey_config):
         return
 
     # Paste "Processando..."
-    pyperclip.copy("Processando...")
-    keyboard.send('ctrl+v')
+    #pyperclip.copy("Processando...")
+    #keyboard.send('ctrl+v')
     time.sleep(DELAY_AFTER_PASTE)
 
     # Run API request in a separate thread so we don't block the listener
