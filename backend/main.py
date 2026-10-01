@@ -197,10 +197,12 @@ def delete_hotkey(hotkey_id: int):
     return {"status": "success"}
 
 # --- Static Files ---
-frontend_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")
-if not os.path.exists(frontend_dir):
-    os.makedirs(frontend_dir)
-app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
+ENABLE_FRONTEND = os.getenv("SERVE_FRONTEND", "true").lower() == "true"
+if ENABLE_FRONTEND:
+    frontend_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")
+    if not os.path.exists(frontend_dir):
+        os.makedirs(frontend_dir)
+    app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
 
 @app.on_event("startup")
 def startup_event():
