@@ -28,7 +28,7 @@ def process_ai_request(text: str, prefix: str, model_info: dict, api_key: str):
         return response.choices[0].message.content
     except Exception as e:
         print(f"Error in AI request: {e}")
-        return "Request Fail"
+        return f"Request Fail: {str(e)}"
 
 
 def hotkey_callback(hotkey_config):
@@ -62,11 +62,11 @@ def hotkey_callback(hotkey_config):
         conn.close()
 
         if not model_info:
-            result = "Request Fail"
+            result = "Request Fail: Model not found"
         else:
             api_key = db.get_api_key(model_info['provider_id'])
             if not api_key:
-                result = "Request Fail"
+                result = "Request Fail: API Key not found"
             else:
                 result = process_ai_request(copied_text, hotkey_config['prefix'], dict(model_info), api_key)
 
