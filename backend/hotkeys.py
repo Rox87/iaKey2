@@ -32,6 +32,12 @@ def process_ai_request(text: str, prefix: str, model_info: dict, api_key: str):
 
 
 def hotkey_callback(hotkey_config):
+    desc = hotkey_config.get('description', '')
+    if desc:
+        print(f"Executing hotkey: {hotkey_config['keys']} - {desc}")
+    else:
+        print(f"Executing hotkey: {hotkey_config['keys']}")
+    
     # Simulate copy (Ctrl+C/Cmd+C)
     # Using Ctrl+X since user wanted to "recortar"
     keyboard.send('ctrl+x')
@@ -91,7 +97,7 @@ def reload_hotkeys():
 
     conn = db.get_db()
     c = conn.cursor()
-    c.execute("SELECT id, keys, prefix, model_id FROM hotkeys")
+    c.execute("SELECT id, keys, prefix, model_id, description FROM hotkeys")
     hotkeys = [dict(row) for row in c.fetchall()]
     conn.close()
 
@@ -101,7 +107,11 @@ def reload_hotkeys():
         # Need to capture the loop variable correctly
         handler = keyboard.add_hotkey(keys_combo, lambda config=hk: hotkey_callback(config))
         active_hotkeys[keys_combo] = handler
-        print(f"Registered hotkey: {keys_combo}")
+        desc = hk.get('description', '')
+        if desc:
+            print(f"Registered hotkey: {keys_combo} - {desc}")
+        else:
+            print(f"Registered hotkey: {keys_combo}")
 
 def start_listener():
     reload_hotkeys()

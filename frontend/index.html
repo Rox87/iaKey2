@@ -193,6 +193,10 @@
                             <option value="">Select a model...</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label>Description (Optional)</label>
+                        <input type="text" id="h-desc" placeholder="e.g. Traduzir texto copiado">
+                    </div>
                     <button type="submit">Save Hotkey</button>
                 </form>
             </div>
@@ -279,7 +283,7 @@
                 div.className = 'card';
                 div.innerHTML = `
                 <button class="delete-btn" onclick="deleteHotkey(${h.id})">Delete</button>
-                <div class="card-title">${h.keys}</div>
+                <div class="card-title">${h.keys} ${h.description ? `<span style="font-weight:normal; font-size:0.9em; color:#64748b;">- ${h.description}</span>` : ''}</div>
                 <div>Prefix: <em>${h.prefix}</em></div>
                 <div>Model: ${modelMap[h.model_id] || 'Unknown'}</div>
             `;
@@ -330,6 +334,7 @@
                 keys: document.getElementById('h-keys').value,
                 prefix: document.getElementById('h-prefix').value,
                 model_id: parseInt(document.getElementById('h-model').value),
+                description: document.getElementById('h-desc').value,
             };
 
             await fetch(`${API_URL}/hotkeys`, {

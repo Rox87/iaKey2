@@ -34,12 +34,14 @@ class HotkeyCreate(BaseModel):
     keys: str
     prefix: str
     model_id: int
+    description: Optional[str] = ""
 
 class HotkeyResponse(BaseModel):
     id: int
     keys: str
     prefix: str
     model_id: int
+    description: Optional[str] = ""
 
 # Ensure DB is initialized
 db.init_db()
@@ -148,7 +150,7 @@ def delete_model(model_id: int):
 def get_hotkeys():
     conn = db.get_db()
     c = conn.cursor()
-    c.execute("SELECT id, keys, prefix, model_id FROM hotkeys")
+    c.execute("SELECT id, keys, prefix, model_id, description FROM hotkeys")
     hotkeys = [dict(row) for row in c.fetchall()]
     conn.close()
     return hotkeys
@@ -158,8 +160,8 @@ def create_hotkey(hotkey: HotkeyCreate):
     conn = db.get_db()
     c = conn.cursor()
     c.execute(
-        "INSERT INTO hotkeys (keys, prefix, model_id) VALUES (?, ?, ?)",
-        (hotkey.keys, hotkey.prefix, hotkey.model_id)
+        "INSERT INTO hotkeys (keys, prefix, model_id, description) VALUES (?, ?, ?, ?)",
+        (hotkey.keys, hotkey.prefix, hotkey.model_id, hotkey.description)
     )
     conn.commit()
     hotkey_id = c.lastrowid
@@ -175,7 +177,8 @@ def create_hotkey(hotkey: HotkeyCreate):
         "id": hotkey_id,
         "keys": hotkey.keys,
         "prefix": hotkey.prefix,
-        "model_id": hotkey.model_id
+        "model_id": hotkey.model_id,
+        "description": hotkey.description
     }
 
 @app.delete("/api/hotkeys/{hotkey_id}")

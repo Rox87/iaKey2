@@ -40,16 +40,23 @@ def init_db():
         pass
 
     # Create hotkeys table
-    # id, keys, prefix, model_id
+    # id, keys, prefix, model_id, description
     c.execute('''
         CREATE TABLE IF NOT EXISTS hotkeys (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             keys TEXT NOT NULL,
             prefix TEXT NOT NULL,
             model_id INTEGER NOT NULL,
+            description TEXT,
             FOREIGN KEY (model_id) REFERENCES models (id)
         )
     ''')
+    
+    try:
+        c.execute('ALTER TABLE hotkeys ADD COLUMN description TEXT DEFAULT ""')
+    except sqlite3.OperationalError:
+        pass
+
     conn.commit()
     conn.close()
 
