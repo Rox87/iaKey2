@@ -12,16 +12,32 @@ def get_db():
 def init_db():
     conn = get_db()
     c = conn.cursor()
+    # Create providers table
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS providers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            base_url TEXT NOT NULL
+        )
+    ''')
+
     # Create models table
-    # id, name, base_url, model_name
+    # id, name, provider_id, model_name
     c.execute('''
         CREATE TABLE IF NOT EXISTS models (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
-            base_url TEXT NOT NULL,
-            model_name TEXT NOT NULL
+            provider_id INTEGER NOT NULL,
+            model_name TEXT NOT NULL,
+            FOREIGN KEY (provider_id) REFERENCES providers (id)
         )
     ''')
+    
+    # Try to add provider_id in case the table already exists from an older version
+    try:
+        c.execute('ALTER TABLE models ADD COLUMN provider_id INTEGER NOT NULL DEFAULT 0')
+    except sqlite3.OperationalError:
+        pass
 
     # Create hotkeys table
     # id, keys, prefix, model_id
@@ -38,15 +54,15 @@ def init_db():
     conn.close()
 
 # Keyring wrapper functions
-def set_api_key(model_id, api_key):
-    keyring.set_password('ai_hotkeys_app', str(model_id), api_key)
+def set_api_key(provider_id, api_key):
+    keyring.set_password('ai_hotkeys_app_prov', str(provider_id), api_key)
 
-def get_api_key(model_id):
-    return keyring.get_password('ai_hotkeys_app', str(model_id))
+def get_api_key(provider_id):
+    return keyring.get_password('ai_hotkeys_app_prov', str(provider_id))
 
-def delete_api_key(model_id):
+def delete_api_key(provider_id):
     try:
-        keyring.delete_password('ai_hotkeys_app', str(model_id))
+        keyring.delete_password('ai_hotkeys_app_prov', str(provider_id))
     except keyring.errors.PasswordDeleteError:
         pass
 

@@ -52,14 +52,19 @@ def hotkey_callback(hotkey_config):
     def run_request():
         conn = db.get_db()
         c = conn.cursor()
-        c.execute("SELECT id, name, base_url, model_name FROM models WHERE id = ?", (hotkey_config['model_id'],))
+        c.execute('''
+            SELECT m.id, m.name, p.base_url, m.model_name, m.provider_id 
+            FROM models m
+            JOIN providers p ON m.provider_id = p.id
+            WHERE m.id = ?
+        ''', (hotkey_config['model_id'],))
         model_info = c.fetchone()
         conn.close()
 
         if not model_info:
             result = "Request Fail"
         else:
-            api_key = db.get_api_key(model_info['id'])
+            api_key = db.get_api_key(model_info['provider_id'])
             if not api_key:
                 result = "Request Fail"
             else:

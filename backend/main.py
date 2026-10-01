@@ -7,17 +7,27 @@ from . import db
 
 app = FastAPI()
 
+# Providers
+class ProviderCreate(BaseModel):
+    name: str
+    base_url: str
+    api_key: str
+
+class ProviderResponse(BaseModel):
+    id: int
+    name: str
+    base_url: str
+
 # Models
 class ModelCreate(BaseModel):
     name: str
-    base_url: str
+    provider_id: int
     model_name: str
-    api_key: str
 
 class ModelResponse(BaseModel):
     id: int
     name: str
-    base_url: str
+    provider_id: int
     model_name: str
 
 class HotkeyCreate(BaseModel):
@@ -36,11 +46,56 @@ db.init_db()
 
 # --- API Endpoints ---
 
+@app.get("/api/providers", response_model=List[ProviderResponse])
+def get_providers():
+    conn = db.get_db()
+    c = conn.cursor()
+    c.execute("SELECT id, name, base_url FROM providers")
+    providers = [dict(row) for row in c.fetchall()]
+    conn.close()
+    return providers
+
+@app.post("/api/providers", response_model=ProviderResponse)
+def create_provider(provider: ProviderCreate):
+    conn = db.get_db()
+    c = conn.cursor()
+    c.execute(
+        "INSERT INTO providers (name, base_url) VALUES (?, ?)",
+        (provider.name, provider.base_url)
+    )
+    conn.commit()
+    provider_id = c.lastrowid
+    conn.close()
+
+    db.set_api_key(provider_id, provider.api_key)
+
+    return {
+        "id": provider_id,
+        "name": provider.name,
+        "base_url": provider.base_url
+    }
+
+@app.delete("/api/providers/{provider_id}")
+def delete_provider(provider_id: int):
+    conn = db.get_db()
+    c = conn.cursor()
+    c.execute("SELECT COUNT(*) as count FROM models WHERE provider_id = ?", (provider_id,))
+    if c.fetchone()['count'] > 0:
+        conn.close()
+        raise HTTPException(status_code=400, detail="Cannot delete provider, it is used by models.")
+
+    c.execute("DELETE FROM providers WHERE id = ?", (provider_id,))
+    conn.commit()
+    conn.close()
+
+    db.delete_api_key(provider_id)
+    return {"status": "success"}
+
 @app.get("/api/models", response_model=List[ModelResponse])
 def get_models():
     conn = db.get_db()
     c = conn.cursor()
-    c.execute("SELECT id, name, base_url, model_name FROM models")
+    c.execute("SELECT id, name, provider_id, model_name FROM models")
     models = [dict(row) for row in c.fetchall()]
     conn.close()
     return models
@@ -49,21 +104,27 @@ def get_models():
 def create_model(model: ModelCreate):
     conn = db.get_db()
     c = conn.cursor()
-    c.execute(
-        "INSERT INTO models (name, base_url, model_name) VALUES (?, ?, ?)",
-        (model.name, model.base_url, model.model_name)
-    )
+    c.execute("PRAGMA table_info(models)")
+    cols = [r['name'] for r in c.fetchall()]
+    
+    if 'base_url' in cols:
+        c.execute(
+            "INSERT INTO models (name, provider_id, model_name, base_url) VALUES (?, ?, ?, '')",
+            (model.name, model.provider_id, model.model_name)
+        )
+    else:
+        c.execute(
+            "INSERT INTO models (name, provider_id, model_name) VALUES (?, ?, ?)",
+            (model.name, model.provider_id, model.model_name)
+        )
     conn.commit()
     model_id = c.lastrowid
     conn.close()
 
-    # Save API key securely
-    db.set_api_key(model_id, model.api_key)
-
     return {
         "id": model_id,
         "name": model.name,
-        "base_url": model.base_url,
+        "provider_id": model.provider_id,
         "model_name": model.model_name
     }
 
@@ -81,8 +142,6 @@ def delete_model(model_id: int):
     conn.commit()
     conn.close()
 
-    # Delete API key
-    db.delete_api_key(model_id)
     return {"status": "success"}
 
 @app.get("/api/hotkeys", response_model=List[HotkeyResponse])

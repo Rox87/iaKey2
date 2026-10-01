@@ -122,6 +122,30 @@
     <div class="container">
         <h1>AI Hotkeys Configuration</h1>
 
+        <div class="section" id="providers-section">
+            <h2>Providers</h2>
+            <div id="providers-list"></div>
+
+            <div class="card">
+                <div class="card-title">Add New Provider</div>
+                <form id="provider-form">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" id="p-name" placeholder="e.g. OpenAI, Local" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Base URL</label>
+                        <input type="text" id="p-baseurl" placeholder="e.g. https://api.openai.com/v1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>API Key</label>
+                        <input type="password" id="p-apikey" placeholder="sk-..." required>
+                    </div>
+                    <button type="submit">Save Provider</button>
+                </form>
+            </div>
+        </div>
+
         <div class="section" id="models-section">
             <h2>Models</h2>
             <div id="models-list"></div>
@@ -134,16 +158,14 @@
                         <input type="text" id="m-name" placeholder="e.g. Local Llama 3, OpenAI GPT-4" required>
                     </div>
                     <div class="form-group">
-                        <label>Base URL</label>
-                        <input type="text" id="m-baseurl" placeholder="e.g. https://api.openai.com/v1" required>
+                        <label>Provider</label>
+                        <select id="m-provider" required>
+                            <option value="">Select a provider...</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Model Name</label>
                         <input type="text" id="m-modelname" placeholder="e.g. gpt-4, llama3" required>
-                    </div>
-                    <div class="form-group">
-                        <label>API Key</label>
-                        <input type="password" id="m-apikey" placeholder="sk-..." required>
                     </div>
                     <button type="submit">Save Model</button>
                 </form>
@@ -180,6 +202,36 @@
     <script>
         const API_URL = '/api';
 
+        let providersMap = {};
+
+        async function fetchProviders() {
+            const res = await fetch(`${API_URL}/providers`);
+            const providers = await res.json();
+            const list = document.getElementById('providers-list');
+            const select = document.getElementById('m-provider');
+
+            list.innerHTML = '';
+            select.innerHTML = '<option value="">Select a provider...</option>';
+            providersMap = {};
+
+            providers.forEach(p => {
+                providersMap[p.id] = p.name;
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.innerHTML = `
+                <button class="delete-btn" onclick="deleteProvider(${p.id})">Delete</button>
+                <div class="card-title">${p.name}</div>
+                <div>URL: ${p.base_url}</div>
+            `;
+                list.appendChild(div);
+
+                const option = document.createElement('option');
+                option.value = p.id;
+                option.textContent = p.name;
+                select.appendChild(option);
+            });
+        }
+
         async function fetchModels() {
             const res = await fetch(`${API_URL}/models`);
             const models = await res.json();
@@ -196,7 +248,7 @@
                 div.innerHTML = `
                 <button class="delete-btn" onclick="deleteModel(${m.id})">Delete</button>
                 <div class="card-title">${m.name}</div>
-                <div>URL: ${m.base_url}</div>
+                <div>Provider: ${providersMap[m.provider_id] || 'Unknown'}</div>
                 <div>Model: ${m.model_name}</div>
             `;
                 list.appendChild(div);
@@ -235,13 +287,31 @@
             });
         }
 
+        document.getElementById('provider-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                name: document.getElementById('p-name').value,
+                base_url: document.getElementById('p-baseurl').value,
+                api_key: document.getElementById('p-apikey').value,
+            };
+
+            await fetch(`${API_URL}/providers`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            document.getElementById('provider-form').reset();
+            await fetchProviders();
+            fetchModels(); // Update models since provider list might affect what's shown
+        });
+
         document.getElementById('model-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const payload = {
                 name: document.getElementById('m-name').value,
-                base_url: document.getElementById('m-baseurl').value,
+                provider_id: parseInt(document.getElementById('m-provider').value),
                 model_name: document.getElementById('m-modelname').value,
-                api_key: document.getElementById('m-apikey').value,
             };
 
             await fetch(`${API_URL}/models`, {
@@ -271,6 +341,17 @@
             document.getElementById('hotkey-form').reset();
             fetchHotkeys();
         });
+
+        async function deleteProvider(id) {
+            if (!confirm('Are you sure?')) return;
+            const res = await fetch(`${API_URL}/providers/${id}`, { method: 'DELETE' });
+            if (!res.ok) {
+                const data = await res.json();
+                alert(data.detail || 'Error deleting provider');
+            } else {
+                fetchProviders();
+            }
+        }
 
         async function deleteModel(id) {
             if (!confirm('Are you sure?')) return;
@@ -337,8 +418,12 @@
 
 
         // Initial load
-        fetchModels();
-        fetchHotkeys();
+        async function init() {
+            await fetchProviders();
+            await fetchModels();
+            fetchHotkeys();
+        }
+        init();
     </script>
 </body>
 
