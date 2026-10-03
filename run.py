@@ -12,9 +12,5 @@ if sys.stderr is None:
 if __name__ == "__main__":
     print("Starting AI Hotkeys App...")
     print("Dashboard available at: http://localhost:8000")
-    is_dev = os.environ.get("NO_EDIT_MODE", "false").lower() == "true"
-    if is_dev:
-        uvicorn.run("backend.main:app", host="127.0.0.1", port=8000, reload=is_dev, log_level="info")        
-    else:
-        uvicorn.run("backend.main:app", host="127.0.0.1", port=8000, reload=False)
+    uvicorn.run("backend.main:app", host="127.0.0.1", port=8000, reload=False)
         

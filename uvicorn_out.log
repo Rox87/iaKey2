@@ -1,0 +1,23 @@
+Starting AI Hotkeys App...
+Dashboard available at: http://localhost:8000
+Registered hotkey: f7 - melhore o texto selecionado!
+Executing hotkey: f7 - melhore o texto selecionado!
+INFO:     127.0.0.1:52949 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52949 - "GET /api/providers HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57278 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:57278 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57278 - "GET /api/hotkeys HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57278 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56611 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+Starting AI Hotkeys App...
+Dashboard available at: http://localhost:8000
+Registered hotkey: f7 - melhore o texto selecionado!
+Starting AI Hotkeys App...
+Dashboard available at: http://localhost:8000
+Registered hotkey: f7 - melhore o texto selecionado!
+INFO:     127.0.0.1:57369 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:53334 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:57369 - "GET /api/providers HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57369 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57369 - "GET /api/hotkeys HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57369 - "GET /api/models HTTP/1.1" 200 OK
