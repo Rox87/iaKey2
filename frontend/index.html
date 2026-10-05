@@ -47,20 +47,39 @@
             font-size: 1.1em;
         }
 
-        .delete-btn {
+        .card-actions {
             position: absolute;
             top: 15px;
             right: 15px;
-            background: #fca5a5;
-            color: white;
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
             border: none;
             padding: 5px 10px;
             border-radius: 8px;
             cursor: pointer;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .delete-btn {
+            background: #fca5a5;
+            color: white;
         }
 
         .delete-btn:hover {
             background: #f87171;
+        }
+
+        .edit-btn {
+            background: #fde047;
+            color: #854d0e;
+        }
+
+        .edit-btn:hover {
+            background: #facc15;
         }
 
         .form-group {
@@ -141,7 +160,10 @@
                         <label>API Key</label>
                         <input type="password" id="p-apikey" placeholder="sk-..." required>
                     </div>
-                    <button type="submit">Save Provider</button>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit">Save Provider</button>
+                        <button type="button" id="p-cancel" style="display:none; background:#cbd5e1; color:#334155;">Cancel</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -167,7 +189,10 @@
                         <label>Model Name</label>
                         <input type="text" id="m-modelname" placeholder="e.g. gpt-4, llama3" required>
                     </div>
-                    <button type="submit">Save Model</button>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit">Save Model</button>
+                        <button type="button" id="m-cancel" style="display:none; background:#cbd5e1; color:#334155;">Cancel</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -197,7 +222,10 @@
                         <label>Description (Optional)</label>
                         <input type="text" id="h-desc" placeholder="e.g. Traduzir texto copiado">
                     </div>
-                    <button type="submit">Save Hotkey</button>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit">Save Hotkey</button>
+                        <button type="button" id="h-cancel" style="display:none; background:#cbd5e1; color:#334155;">Cancel</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -207,10 +235,17 @@
         const API_URL = '/api';
 
         let providersMap = {};
+        let rawProviders = [];
+        let rawModels = [];
+        let rawHotkeys = [];
+
+        let editingProviderId = null;
+        let editingModelId = null;
+        let editingHotkeyId = null;
 
         async function fetchProviders() {
             const res = await fetch(`${API_URL}/providers`);
-            const providers = await res.json();
+            rawProviders = await res.json();
             const list = document.getElementById('providers-list');
             const select = document.getElementById('m-provider');
 
@@ -218,12 +253,15 @@
             select.innerHTML = '<option value="">Select a provider...</option>';
             providersMap = {};
 
-            providers.forEach(p => {
+            rawProviders.forEach(p => {
                 providersMap[p.id] = p.name;
                 const div = document.createElement('div');
                 div.className = 'card';
                 div.innerHTML = `
-                <button class="delete-btn" onclick="deleteProvider(${p.id})">Delete</button>
+                <div class="card-actions">
+                    <button class="action-btn edit-btn" onclick="editProvider(${p.id})">Edit</button>
+                    <button class="action-btn delete-btn" onclick="deleteProvider(${p.id})">Delete</button>
+                </div>
                 <div class="card-title">${p.name}</div>
                 <div>URL: ${p.base_url}</div>
             `;
@@ -238,19 +276,22 @@
 
         async function fetchModels() {
             const res = await fetch(`${API_URL}/models`);
-            const models = await res.json();
+            rawModels = await res.json();
             const list = document.getElementById('models-list');
             const select = document.getElementById('h-model');
 
             list.innerHTML = '';
             select.innerHTML = '<option value="">Select a model...</option>';
 
-            models.forEach(m => {
+            rawModels.forEach(m => {
                 // Populate list
                 const div = document.createElement('div');
                 div.className = 'card';
                 div.innerHTML = `
-                <button class="delete-btn" onclick="deleteModel(${m.id})">Delete</button>
+                <div class="card-actions">
+                    <button class="action-btn edit-btn" onclick="editModel(${m.id})">Edit</button>
+                    <button class="action-btn delete-btn" onclick="deleteModel(${m.id})">Delete</button>
+                </div>
                 <div class="card-title">${m.name}</div>
                 <div>Provider: ${providersMap[m.provider_id] || 'Unknown'}</div>
                 <div>Model: ${m.model_name}</div>
@@ -267,7 +308,7 @@
 
         async function fetchHotkeys() {
             const res = await fetch(`${API_URL}/hotkeys`);
-            const hotkeys = await res.json();
+            rawHotkeys = await res.json();
 
             // Also need models to display model name
             const mRes = await fetch(`${API_URL}/models`);
@@ -278,11 +319,14 @@
             const list = document.getElementById('hotkeys-list');
             list.innerHTML = '';
 
-            hotkeys.forEach(h => {
+            rawHotkeys.forEach(h => {
                 const div = document.createElement('div');
                 div.className = 'card';
                 div.innerHTML = `
-                <button class="delete-btn" onclick="deleteHotkey(${h.id})">Delete</button>
+                <div class="card-actions">
+                    <button class="action-btn edit-btn" onclick="editHotkey(${h.id})">Edit</button>
+                    <button class="action-btn delete-btn" onclick="deleteHotkey(${h.id})">Delete</button>
+                </div>
                 <div class="card-title">${h.keys} ${h.description ? `<span style="font-weight:normal; font-size:0.9em; color:#64748b;">- ${h.description}</span>` : ''}</div>
                 <div>Prefix: <em>${h.prefix}</em></div>
                 <div>Model: ${modelMap[h.model_id] || 'Unknown'}</div>
@@ -290,6 +334,30 @@
                 list.appendChild(div);
             });
         }
+
+        function editProvider(id) {
+            const p = rawProviders.find(x => x.id === id);
+            if (!p) return;
+            document.getElementById('p-name').value = p.name;
+            document.getElementById('p-baseurl').value = p.base_url;
+            document.getElementById('p-apikey').value = '';
+            document.getElementById('p-apikey').placeholder = 'Leave blank to keep current key';
+            document.getElementById('p-apikey').removeAttribute('required');
+            editingProviderId = id;
+            document.querySelector('#provider-form button[type="submit"]').textContent = 'Update Provider';
+            document.getElementById('p-cancel').style.display = 'block';
+            document.querySelector('#provider-form').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetProviderForm() {
+            document.getElementById('provider-form').reset();
+            editingProviderId = null;
+            document.querySelector('#provider-form button[type="submit"]').textContent = 'Save Provider';
+            document.getElementById('p-apikey').setAttribute('required', 'true');
+            document.getElementById('p-apikey').placeholder = 'sk-...';
+            document.getElementById('p-cancel').style.display = 'none';
+        }
+        document.getElementById('p-cancel').addEventListener('click', resetProviderForm);
 
         document.getElementById('provider-form').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -299,16 +367,45 @@
                 api_key: document.getElementById('p-apikey').value,
             };
 
-            await fetch(`${API_URL}/providers`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+            if (editingProviderId) {
+                if (!payload.api_key) delete payload.api_key;
+                await fetch(`${API_URL}/providers/${editingProviderId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            } else {
+                await fetch(`${API_URL}/providers`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            }
 
-            document.getElementById('provider-form').reset();
+            resetProviderForm();
             await fetchProviders();
-            fetchModels(); // Update models since provider list might affect what's shown
+            fetchModels(); 
         });
+
+        function editModel(id) {
+            const m = rawModels.find(x => x.id === id);
+            if (!m) return;
+            document.getElementById('m-name').value = m.name;
+            document.getElementById('m-provider').value = m.provider_id;
+            document.getElementById('m-modelname').value = m.model_name;
+            editingModelId = id;
+            document.querySelector('#model-form button[type="submit"]').textContent = 'Update Model';
+            document.getElementById('m-cancel').style.display = 'block';
+            document.querySelector('#model-form').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetModelForm() {
+            document.getElementById('model-form').reset();
+            editingModelId = null;
+            document.querySelector('#model-form button[type="submit"]').textContent = 'Save Model';
+            document.getElementById('m-cancel').style.display = 'none';
+        }
+        document.getElementById('m-cancel').addEventListener('click', resetModelForm);
 
         document.getElementById('model-form').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -318,15 +415,45 @@
                 model_name: document.getElementById('m-modelname').value,
             };
 
-            await fetch(`${API_URL}/models`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+            if (editingModelId) {
+                await fetch(`${API_URL}/models/${editingModelId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            } else {
+                await fetch(`${API_URL}/models`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            }
 
-            document.getElementById('model-form').reset();
+            resetModelForm();
             fetchModels();
+            fetchHotkeys();
         });
+
+        function editHotkey(id) {
+            const h = rawHotkeys.find(x => x.id === id);
+            if (!h) return;
+            document.getElementById('h-keys').value = h.keys;
+            document.getElementById('h-prefix').value = h.prefix;
+            document.getElementById('h-model').value = h.model_id;
+            document.getElementById('h-desc').value = h.description || '';
+            editingHotkeyId = id;
+            document.querySelector('#hotkey-form button[type="submit"]').textContent = 'Update Hotkey';
+            document.getElementById('h-cancel').style.display = 'block';
+            document.querySelector('#hotkey-form').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetHotkeyForm() {
+            document.getElementById('hotkey-form').reset();
+            editingHotkeyId = null;
+            document.querySelector('#hotkey-form button[type="submit"]').textContent = 'Save Hotkey';
+            document.getElementById('h-cancel').style.display = 'none';
+        }
+        document.getElementById('h-cancel').addEventListener('click', resetHotkeyForm);
 
         document.getElementById('hotkey-form').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -337,13 +464,21 @@
                 description: document.getElementById('h-desc').value,
             };
 
-            await fetch(`${API_URL}/hotkeys`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+            if (editingHotkeyId) {
+                await fetch(`${API_URL}/hotkeys/${editingHotkeyId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            } else {
+                await fetch(`${API_URL}/hotkeys`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            }
 
-            document.getElementById('hotkey-form').reset();
+            resetHotkeyForm();
             fetchHotkeys();
         });
 

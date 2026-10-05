@@ -13,6 +13,11 @@ class ProviderCreate(BaseModel):
     base_url: str
     api_key: str
 
+class ProviderUpdate(BaseModel):
+    name: str
+    base_url: str
+    api_key: Optional[str] = None
+
 class ProviderResponse(BaseModel):
     id: int
     name: str
@@ -93,6 +98,26 @@ def delete_provider(provider_id: int):
     db.delete_api_key(provider_id)
     return {"status": "success"}
 
+@app.put("/api/providers/{provider_id}", response_model=ProviderResponse)
+def update_provider(provider_id: int, provider: ProviderUpdate):
+    conn = db.get_db()
+    c = conn.cursor()
+    c.execute(
+        "UPDATE providers SET name = ?, base_url = ? WHERE id = ?",
+        (provider.name, provider.base_url, provider_id)
+    )
+    conn.commit()
+    conn.close()
+
+    if provider.api_key:
+        db.set_api_key(provider_id, provider.api_key)
+
+    return {
+        "id": provider_id,
+        "name": provider.name,
+        "base_url": provider.base_url
+    }
+
 @app.get("/api/models", response_model=List[ModelResponse])
 def get_models():
     conn = db.get_db()
@@ -146,6 +171,33 @@ def delete_model(model_id: int):
 
     return {"status": "success"}
 
+@app.put("/api/models/{model_id}", response_model=ModelResponse)
+def update_model(model_id: int, model: ModelCreate):
+    conn = db.get_db()
+    c = conn.cursor()
+    c.execute("PRAGMA table_info(models)")
+    cols = [r['name'] for r in c.fetchall()]
+    
+    if 'base_url' in cols:
+        c.execute(
+            "UPDATE models SET name = ?, provider_id = ?, model_name = ? WHERE id = ?",
+            (model.name, model.provider_id, model.model_name, model_id)
+        )
+    else:
+        c.execute(
+            "UPDATE models SET name = ?, provider_id = ?, model_name = ? WHERE id = ?",
+            (model.name, model.provider_id, model.model_name, model_id)
+        )
+    conn.commit()
+    conn.close()
+
+    return {
+        "id": model_id,
+        "name": model.name,
+        "provider_id": model.provider_id,
+        "model_name": model.model_name
+    }
+
 @app.get("/api/hotkeys", response_model=List[HotkeyResponse])
 def get_hotkeys():
     conn = db.get_db()
@@ -195,6 +247,29 @@ def delete_hotkey(hotkey_id: int):
         hk.reload_hotkeys()
 
     return {"status": "success"}
+
+@app.put("/api/hotkeys/{hotkey_id}", response_model=HotkeyResponse)
+def update_hotkey(hotkey_id: int, hotkey: HotkeyCreate):
+    conn = db.get_db()
+    c = conn.cursor()
+    c.execute(
+        "UPDATE hotkeys SET keys = ?, prefix = ?, model_id = ?, description = ? WHERE id = ?",
+        (hotkey.keys, hotkey.prefix, hotkey.model_id, hotkey.description, hotkey_id)
+    )
+    conn.commit()
+    conn.close()
+
+    from . import hotkeys as hk
+    if hasattr(hk, 'reload_hotkeys'):
+        hk.reload_hotkeys()
+
+    return {
+        "id": hotkey_id,
+        "keys": hotkey.keys,
+        "prefix": hotkey.prefix,
+        "model_id": hotkey.model_id,
+        "description": hotkey.description
+    }
 
 # --- Static Files ---
 ENABLE_FRONTEND = os.getenv("SERVE_FRONTEND", "true").lower() == "true"

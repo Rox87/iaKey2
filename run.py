@@ -11,6 +11,6 @@ if sys.stderr is None:
 
 if __name__ == "__main__":
     print("Starting AI Hotkeys App...")
-    print("Dashboard available at: http://localhost:8000")
-    uvicorn.run("backend.main:app", host="127.0.0.1", port=8000, reload=False)
+    print("Dashboard available at: http://localhost:8001")
+    uvicorn.run("backend.main:app", host="127.0.0.1", port=8001, reload=False)
         
