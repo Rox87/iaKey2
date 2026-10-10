@@ -1,28 +1,4 @@
 [project]
-<<<<<<< HEAD
-name = "jkey"
-version = "0.1.0"
-description = "Jkey project"
-authors = [
-    {name = "Author"}
-]
-readme = "README.md"
-requires-python = ">=3.9"
-dependencies = [
-    "fastapi",
-    "uvicorn",
-    "pydantic",
-    "keyboard",
-    "pyperclip",
-    "openai",
-    "keyring",
-    "keyrings-alt"
-]
-
-[build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
-=======
 name = "iakey"
 version = "0.1.0"
 description = "AI Hotkeys App"
@@ -54,4 +30,3 @@ start = "run:main"
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
->>>>>>> main
