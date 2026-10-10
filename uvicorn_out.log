@@ -1,0 +1,60 @@
+Starting AI Hotkeys App...
+Dashboard available at: http://localhost:8000
+Registered hotkey: f7 - melhore o texto selecionado!
+Executing hotkey: f7 - melhore o texto selecionado!
+INFO:     127.0.0.1:52949 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52949 - "GET /api/providers HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57278 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:57278 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57278 - "GET /api/hotkeys HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57278 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56611 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+Starting AI Hotkeys App...
+Dashboard available at: http://localhost:8000
+Registered hotkey: f7 - melhore o texto selecionado!
+Starting AI Hotkeys App...
+Dashboard available at: http://localhost:8000
+Registered hotkey: f7 - melhore o texto selecionado!
+INFO:     127.0.0.1:57369 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:53334 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:57369 - "GET /api/providers HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57369 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57369 - "GET /api/hotkeys HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57369 - "GET /api/models HTTP/1.1" 200 OK
+Starting AI Hotkeys App...
+Dashboard available at: http://localhost:8001
+Registered hotkey: f7 - melhore o texto selecionado!
+INFO:     127.0.0.1:59586 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59586 - "GET /api/providers HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54763 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:59586 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59586 - "GET /api/hotkeys HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59586 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63190 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63190 - "GET /api/providers HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63190 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63190 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50345 - "GET /api/hotkeys HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50345 - "GET /api/models HTTP/1.1" 200 OK
+Starting AI Hotkeys App...
+Dashboard available at: http://localhost:8001
+Registered hotkey: f7 - melhore o texto selecionado!
+Executing hotkey: f7 - melhore o texto selecionado!
+Error in AI request: Error code: 403 - {'code': 'permission-denied', 'error': 'Your team 385db6b6-245c-4945-b15e-9040fcab5f29 has either used all available credits or reached its monthly spending limit. To continue making API requests, please purchase more credits or raise your spending limit.'}
+Executing hotkey: f7 - melhore o texto selecionado!
+Error in AI request: Error code: 403 - {'code': 'permission-denied', 'error': 'Your team 385db6b6-245c-4945-b15e-9040fcab5f29 has either used all available credits or reached its monthly spending limit. To continue making API requests, please purchase more credits or raise your spending limit.'}
+INFO:     127.0.0.1:64823 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64823 - "GET /api/providers HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54366 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:54366 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54366 - "GET /api/hotkeys HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54366 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62296 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:54399 - "GET /api/providers HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54399 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54399 - "GET /api/hotkeys HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54399 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60977 - "GET /api/providers HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60977 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60977 - "GET /api/hotkeys HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60977 - "GET /api/models HTTP/1.1" 200 OK
